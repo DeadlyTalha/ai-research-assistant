@@ -53,9 +53,9 @@ Les technologies seront ajoutées et précisées progressivement au cours du dé
 
 ## 🚀 État d'avancement
 Version 0.1 — Configuration initiale
- Création de la structure du projet
- Configuration de l'environnement Python
- Ajout d'un document PDF
- Extraction du texte depuis un fichier PDF
- Initialisation du dépôt Git
- Connexion du projet à GitHub
+- Création de la structure du projet
+- Configuration de l'environnement Python*
+- Ajout d'un document PDF
+- Extraction du texte depuis un fichier PDF
+- Initialisation du dépôt Git
+- Connexion du projet à GitHub
