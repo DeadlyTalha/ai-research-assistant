@@ -1,49 +1,65 @@
-def split_text(text,chunk_size=1000,overlap=200):
-    chunks =[]
+def split_text(text, chunk_size=1000, overlap=200):
+    chunks = []
+
     start = 0
-    
+
     while start < len(text):
         end = start + chunk_size
-        chunk = text[start:end]
-        chunks.append(chunk)
-        
+
+        chunk = text[start:end].strip()
+
+        if chunk:
+            chunks.append(chunk)
+
         start = end - overlap
-        
+
     return chunks
 
+
+def create_chunks_from_pages(pages, chunk_size=1000, overlap=200):
+
+    chunks = []
+
+    chunk_id = 0
+
+    for page in pages:
+
+        page_chunks = split_text(
+            page["text"],
+            chunk_size=chunk_size,
+            overlap=overlap
+        )
+
+        for chunk in page_chunks:
+
+            chunks.append({
+                "id": f"chunk_{chunk_id}",
+                "text": chunk,
+                "page": page["page"]
+            })
+
+            chunk_id += 1
+
+    return chunks
+
+
 if __name__ == "__main__":
-    from document_loader import extract_text_from_pdf, PDF_chemin
 
-    # 1. Extraction du texte
-    text = extract_text_from_pdf(PDF_chemin)
+    from document_loader import extract_pages_from_pdf, PDF_PATH
 
-    print("=" * 60)
-    print("INSPECTION DU DOCUMENT")
-    print("=" * 60)
+    pages = extract_pages_from_pdf(PDF_PATH)
 
-    print(f"Nombre de caractères : {len(text)}")
+    chunks = create_chunks_from_pages(pages)
 
-    # 2. Création des chunks
-    chunks = split_text(text)
-
+    print(f"Nombre de pages : {len(pages)}")
     print(f"Nombre de chunks : {len(chunks)}")
 
-    # 3. Statistiques
-    sizes = [len(chunk) for chunk in chunks]
+    for chunk in chunks[:5]:
 
-    print(f"Taille minimale : {min(sizes)} caractères")
-    print(f"Taille maximale : {max(sizes)} caractères")
-    print(f"Taille moyenne  : {sum(sizes) // len(sizes)} caractères")
+        print("\n" + "-" * 60)
+        print(f"ID : {chunk['id']}")
+        print(f"Page : {chunk['page']}")
+        print(f"Taille : {len(chunk['text'])} caractères")
+        print("-" * 60)
 
-    # 4. Affichage des premiers chunks
-    print("\n" + "=" * 60)
-    print("APERÇU DES CHUNKS")
-    print("=" * 60)
-
-    for i, chunk in enumerate(chunks[:10], start=1):
-        print(f"\n{'-' * 60}")
-        print(f"CHUNK {i}")
-        print(f"Taille : {len(chunk)} caractères")
-        print(f"{'-' * 60}")
-        print(chunk)
-  
+        print(chunk["text"])
