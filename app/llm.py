@@ -78,15 +78,20 @@ if __name__ == "__main__":
     print("\n===== RÉPONSE =====")
     print(response)
 
-    print("\n===== SOURCES =====")
+    if response.strip() != "Je ne trouve pas cette information dans le document.":
+        
+        print("\n===== SOURCES =====")
 
-    pages = []
+        pages = []
 
-    for metadata in metadatas:
-        page = metadata["page"]
+        for metadata in metadatas:
+            page = metadata["page"]
 
-        if page not in pages:
-            pages.append(page)
+            if page not in pages:
+                pages.append(page)
 
-    for page in pages:
-        print(f"- Page {page}")
+        for page in pages:
+            print(f"- Page {page}")
+    else:
+        print("\n===== SOURCES =====")
+        print("- Aucune source pertinente trouvée.")
