@@ -24,11 +24,11 @@ if __name__ == "__main__":
 
     results = search_document(question)
 
-    print("\nRésultats trouvés :")
-
     documents = results["documents"][0]
     metadatas = results["metadatas"][0]
 
+    print("\nRésultats trouvés :")
+    
     for i in range(len(documents)):
         document = documents[i]
         page = metadatas[i]["page"]
