@@ -62,6 +62,16 @@ if __name__ == "__main__":
     # Recherche des chunks pertinents
     results = search_document(question)
 
+    # Vérifier si un contexte pertinent a été trouvé
+    if not results["documents"][0]:
+        print("\n===== RÉPONSE =====")
+        print("Je ne trouve pas cette information dans le document.")
+
+        print("\n===== SOURCES =====")
+        print("- Aucune source pertinente trouvée.")
+
+        exit()
+
     documents = results["documents"][0]
     metadatas = results["metadatas"][0]
 
@@ -79,7 +89,7 @@ if __name__ == "__main__":
     print(response)
 
     if response.strip() != "Je ne trouve pas cette information dans le document.":
-        
+
         print("\n===== SOURCES =====")
 
         pages = []
@@ -92,6 +102,3 @@ if __name__ == "__main__":
 
         for page in pages:
             print(f"- Page {page}")
-    else:
-        print("\n===== SOURCES =====")
-        print("- Aucune source pertinente trouvée.")
