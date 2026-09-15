@@ -1,36 +1,98 @@
 from embeddings import load_embedding_model
 from vector_store import create_vector_store
+from reranker import rerank_documents
 
-seuil_distance = 0.9  #seuil de distance pour déterminer la pertinence des résultat
 
-def search_document(question, top_k=3):
-    
+DISTANCE_THRESHOLD = 0.9
+RETRIEVAL_TOP_K = 10
+FINAL_TOP_K = 3
+
+
+def search_document(question):
+    """
+    Recherche les chunks pertinents en deux étapes :
+
+    1. Retrieval avec ChromaDB
+    2. Reranking avec un CrossEncoder
+    """
+
     collection = create_vector_store()
+    embedding_model = load_embedding_model()
 
-    # générer l'embedding de la question
-    model = load_embedding_model()
-    question_embedding = model.encode([question])
+    # --------------------------------------------------
+    # 1. Retrieval avec ChromaDB
+    # --------------------------------------------------
 
-       # rechercher les chunks les plus pertinents
+    question_embedding = embedding_model.encode([question])
+
     results = collection.query(
         query_embeddings=question_embedding.tolist(),
-        n_results=top_k
+        n_results=RETRIEVAL_TOP_K
     )
 
+    documents = results["documents"][0]
+    metadatas = results["metadatas"][0]
     distances = results["distances"][0]
 
-    # Vérifier la pertinence du meilleur résultat
-    if distances[0] > seuil_distance: 
+    # Aucun résultat
+    if not documents:
         return {
             "documents": [[]],
             "metadatas": [[]],
-            "distances": [[]]
+            "distances": [[]],
+            "rerank_scores": [[]]
         }
-    
-    return results
+
+    # --------------------------------------------------
+    # 2. Seuil de distance
+    # --------------------------------------------------
+
+    if distances[0] > DISTANCE_THRESHOLD:
+        return {
+            "documents": [[]],
+            "metadatas": [[]],
+            "distances": [[]],
+            "rerank_scores": [[]]
+        }
+
+    # --------------------------------------------------
+    # 3. Reranking
+    # --------------------------------------------------
+
+    ranked_documents = rerank_documents(
+        question,
+        documents,
+        top_k=FINAL_TOP_K
+    )
+
+    # --------------------------------------------------
+    # 4. Préparation des résultats finaux
+    # --------------------------------------------------
+
+    final_documents = []
+    final_metadatas = []
+    final_distances = []
+    rerank_scores = []
+
+    for result in ranked_documents:
+
+        index = result["index"]
+
+        final_documents.append(result["document"])
+        final_metadatas.append(metadatas[index])
+        final_distances.append(distances[index])
+        rerank_scores.append(result["score"])
+
+    return {
+        "documents": [final_documents],
+        "metadatas": [final_metadatas],
+        "distances": [final_distances],
+        "rerank_scores": [rerank_scores]
+    }
 
 
 if __name__ == "__main__":
+
     question = input("Pose ta question : ")
 
     results = search_document(question)
@@ -38,17 +100,19 @@ if __name__ == "__main__":
     documents = results["documents"][0]
     metadatas = results["metadatas"][0]
     distances = results["distances"][0]
+    rerank_scores = results["rerank_scores"][0]
 
     if not documents:
-        print("Pas de chunk pertinent trouvé pour la question posée.")
-    else:
-        print("\nRésultats trouvés :")
-        
-        for i in range(len(documents)):
-            document = documents[i]
-            page = metadatas[i]["page"]
-            distance = distances[i]
 
-            print(f"\n--- Résultat {i + 1} | Page {page}  ---")
-            print(f"Distance : {distance:.4f}") #affiche le score de similarité
-            print(document[:500])
+        print("\nAucun chunk suffisamment pertinent trouvé.")
+
+    else:
+
+        print("\n===== RÉSULTATS APRÈS RERANKING =====")
+
+        for i in range(len(documents)):
+
+            print(f"\n--- Résultat {i + 1} | Page {metadatas[i]['page']} ---")
+            print(f"Distance Chroma : {distances[i]}")
+            print(f"Score reranker : {rerank_scores[i]}")
+            print(documents[i][:500])

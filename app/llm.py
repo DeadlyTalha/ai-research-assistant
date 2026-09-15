@@ -1,5 +1,7 @@
 import ollama
+
 from retriever import search_document
+
 
 MODEL_NAME = "qwen3.5:4b"
 
@@ -18,17 +20,19 @@ def generate_response(prompt):
     return response["message"]["content"]
 
 
-def build_prompt(question, documents,metadatas):
-    
+def build_prompt(question, documents, metadatas):
+
     context_parts = []
 
     for i in range(len(documents)):
+
         document = documents[i]
         page = metadatas[i]["page"]
 
         context_parts.append(
             f"[Page {page}]\n{document}"
         )
+
     context = "\n\n".join(context_parts)
 
     prompt = f"""
@@ -44,6 +48,7 @@ Règles :
 - Lorsque c'est pertinent, indique les pages utilisées.
 
 CONTEXTE DU DOCUMENT :
+
 {context}
 
 QUESTION :
@@ -57,48 +62,81 @@ RÉPONSE :
 
 
 if __name__ == "__main__":
+
     question = input("Pose ta question : ")
 
-    # Recherche des chunks pertinents
+    # --------------------------------------------------
+    # Retrieval + Reranking
+    # --------------------------------------------------
+
     results = search_document(question)
 
-    # Vérifier si un contexte pertinent a été trouvé
-    if not results["documents"][0]:
+    documents = results["documents"][0]
+    metadatas = results["metadatas"][0]
+    rerank_scores = results["rerank_scores"][0]
+
+    # --------------------------------------------------
+    # Aucun résultat pertinent
+    # --------------------------------------------------
+
+    if not documents:
+
         print("\n===== RÉPONSE =====")
-        print("Je ne trouve pas cette information dans le document.")
+        print(
+            "Je ne trouve pas cette information dans le document."
+        )
 
         print("\n===== SOURCES =====")
         print("- Aucune source pertinente trouvée.")
 
         exit()
 
-    documents = results["documents"][0]
-    metadatas = results["metadatas"][0]
+    # --------------------------------------------------
+    # Construction du prompt
+    # --------------------------------------------------
 
-    # Construire le prompt
     prompt = build_prompt(
         question,
         documents,
         metadatas
     )
 
-    # Générer la réponse
+    # --------------------------------------------------
+    # Génération avec Qwen
+    # --------------------------------------------------
+
     response = generate_response(prompt)
 
     print("\n===== RÉPONSE =====")
     print(response)
 
-    if response.strip() != "Je ne trouve pas cette information dans le document.":
+    # --------------------------------------------------
+    # Sources
+    # --------------------------------------------------
 
-        print("\n===== SOURCES =====")
+    print("\n===== SOURCES =====")
 
-        pages = []
+    pages = []
 
-        for metadata in metadatas:
-            page = metadata["page"]
+    for metadata in metadatas:
 
-            if page not in pages:
-                pages.append(page)
+        page = metadata["page"]
 
-        for page in pages:
-            print(f"- Page {page}")
+        if page not in pages:
+            pages.append(page)
+
+    for page in pages:
+        print(f"- Page {page}")
+
+    # --------------------------------------------------
+    # Informations de retrieval
+    # --------------------------------------------------
+
+    print("\n===== INFORMATIONS RETRIEVAL =====")
+
+    for i in range(len(documents)):
+
+        print(
+            f"- Page {metadatas[i]['page']} "
+            f"| Score reranker : {rerank_scores[i]:.4f}"
+        )
