@@ -5,7 +5,6 @@ from retriever import search_document
 
 MODEL_NAME = "qwen3.5:4b"
 
-
 def generate_response(prompt):
     response = ollama.chat(
         model=MODEL_NAME,
@@ -14,8 +13,15 @@ def generate_response(prompt):
                 "role": "user",
                 "content": prompt
             }
-        ]
+        ],
+        options={
+            "num_predict": 1000,
+        },
+        think=False
     )
+
+    print("\n===== DEBUG RESPONSE =====")
+    print(response)
 
     return response["message"]["content"]
 

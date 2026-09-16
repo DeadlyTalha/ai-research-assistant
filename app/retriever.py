@@ -3,7 +3,7 @@ from vector_store import create_vector_store
 from reranker import rerank_documents
 
 
-DISTANCE_THRESHOLD = 0.9
+DISTANCE_THRESHOLD = 1.2
 RETRIEVAL_TOP_K = 10
 FINAL_TOP_K = 3
 
