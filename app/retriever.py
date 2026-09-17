@@ -4,6 +4,8 @@ from reranker import rerank_documents
 
 
 DISTANCE_THRESHOLD = 1.2
+RERANK_THRESHOLD = 0.0
+
 RETRIEVAL_TOP_K = 10
 FINAL_TOP_K = 3
 
@@ -19,9 +21,7 @@ def search_document(question):
     collection = create_vector_store()
     embedding_model = load_embedding_model()
 
-    # --------------------------------------------------
-    # 1. Retrieval avec ChromaDB
-    # --------------------------------------------------
+    # Retrieval avec ChromaDB
 
     question_embedding = embedding_model.encode([question])
 
@@ -43,9 +43,7 @@ def search_document(question):
             "rerank_scores": [[]]
         }
 
-    # --------------------------------------------------
-    # 2. Seuil de distance
-    # --------------------------------------------------
+    # Seuil de distance pour filtrer les résultats peu pertinents
 
     if distances[0] > DISTANCE_THRESHOLD:
         return {
@@ -55,9 +53,7 @@ def search_document(question):
             "rerank_scores": [[]]
         }
 
-    # --------------------------------------------------
-    # 3. Reranking
-    # --------------------------------------------------
+   # Reranking
 
     ranked_documents = rerank_documents(
         question,
@@ -65,9 +61,17 @@ def search_document(question):
         top_k=FINAL_TOP_K
     )
 
-    # --------------------------------------------------
-    # 4. Préparation des résultats finaux
-    # --------------------------------------------------
+    # Vérification de la pertinence du meilleur résultat
+    
+    if not ranked_documents or ranked_documents[0]["score"] <= RERANK_THRESHOLD:
+        return {
+            "documents": [[]],
+            "metadatas": [[]],
+            "distances": [[]],
+            "rerank_scores": [[]]
+        }
+        
+    # Préparation des résultats finaux
 
     final_documents = []
     final_metadatas = []
