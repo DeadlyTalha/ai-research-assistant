@@ -76,22 +76,21 @@ Les technologies seront ajoutées et précisées progressivement au cours du dé
 - [x] Implémentation de la recherche sémantique
 - [x] Récupération des chunks les plus pertinents
 
-### Version 0.4 — Génération avec un LLM
+### Version 0.4 — Reranking et contrôle de pertinence
+
+- [x] Récupération de 10 candidats avec ChromaDB
+- [x] Implémentation d'un CrossEncoder pour le reranking
+- [x] Reclassement des chunks selon leur pertinence
+- [x] Sélection des 3 meilleurs chunks
+- [x] Ajout d'un seuil de pertinence basé sur le score du reranker
+- [x] Gestion des questions hors document
+- [x] Blocage de la génération lorsque aucun résultat pertinent n'est trouvé
+
+### Version 0.5 — Génération avec un LLM
 
 - [x] Intégration d'un LLM local avec Ollama
 - [x] Intégration du modèle `Qwen3.5 4B`
 - [x] Connexion du système de retrieval au LLM
-- [x] Construction d'un contexte à partir des chunks récupérés
+- [x] Construction du contexte à partir des chunks récupérés
 - [x] Génération de réponses basées sur le document
 - [x] Ajout des numéros de page comme sources
-- [x] Gestion des questions dont la réponse n'est pas présente dans le document
-
-### Prochaines étapes
-
-- [ ] Améliorer la pertinence de la recherche avec un seuil de similarité
-- [ ] Ajouter une interface utilisateur avec Streamlit
-- [ ] Permettre l'ajout de plusieurs documents
-- [ ] Ajouter l'historique des conversations
-- [ ] Améliorer l'affichage des sources
-- [ ] Évaluer la qualité des réponses du système RAG
-- [ ] Améliorer l'expérience utilisateur
