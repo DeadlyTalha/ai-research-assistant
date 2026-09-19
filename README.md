@@ -43,7 +43,9 @@ Les principales technologies utilisées ou prévues dans le projet sont :
 Python
 PyPDF
 Embeddings
-Base de données vectorielle
+Base de données vectorielle(ChromaDB)
+CrossEncoder
+Ollama
 Large Language Models (LLM)
 Retrieval-Augmented Generation (RAG)
 Streamlit
@@ -53,6 +55,7 @@ Les technologies seront ajoutées et précisées progressivement au cours du dé
 
 ## 🚀 État d'avancement
 ### Version 0.1 — Configuration initiale
+
 - [x] Création de la structure du projet
 - [x] Configuration de l'environnement Python*
 - [x] Ajout d'un document PDF
@@ -94,3 +97,12 @@ Les technologies seront ajoutées et précisées progressivement au cours du dé
 - [x] Construction du contexte à partir des chunks récupérés
 - [x] Génération de réponses basées sur le document
 - [x] Ajout des numéros de page comme sources
+
+### Version 0.6 — Interface utilisateur
+
+- [x] Création d'une interface avec Streamlit
+- [x] Intégration du pipeline RAG dans l'interface
+- [x] Saisie des questions par l'utilisateur
+- [x] Affichage des réponses générées par le LLM
+- [x] Affichage des sources utilisées
+- [x] Gestion des questions hors document
