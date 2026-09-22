@@ -2,7 +2,7 @@ from pathlib import Path
 from pypdf import PdfReader
 
 
-PDF_chemin = Path("data/documents/Intelligence_arti_guide_de_survie.pdf")
+PDF_chemin = Path("data/documents/Histoire_de_France_(Jacques_Bainville)_Texte_entier.pdf")
 
 
 def extract_pages_from_pdf(pdf_path):

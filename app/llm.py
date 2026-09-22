@@ -52,8 +52,57 @@ Règles :
   "Je ne trouve pas cette information dans le document."
 - Donne une réponse claire et concise.
 - Lorsque c'est pertinent, indique les pages utilisées.
+- Si une information précise est présente dans le document,
+  utilise exactement l'information donnée par le document.
 
 CONTEXTE DU DOCUMENT :
+
+{context}
+
+QUESTION :
+
+{question}
+
+RÉPONSE :
+"""
+
+    return prompt
+
+def build_global_prompt(question, documents, metadatas):
+
+    context_parts = []
+
+    for i in range(len(documents)):
+        document = documents[i]
+        page = metadatas[i]["page"]
+
+        context_parts.append(
+            f"[Page {page}]\n{document}"
+        )
+
+    context = "\n\n".join(context_parts)
+
+    prompt = f"""
+Tu es un assistant spécialisé dans l'analyse de documents.
+
+L'utilisateur demande une vue d'ensemble du document.
+
+Les extraits ci-dessous sont répartis à différents endroits du document.
+Utilise-les pour identifier les thèmes, sujets et idées générales présentés
+dans le document.
+
+IMPORTANT :
+- Réponds uniquement à partir des extraits fournis.
+- N'utilise aucune connaissance extérieure.
+- Ne prétends pas avoir accès aux parties du document qui ne sont pas présentes
+  dans les extraits.
+- Donne une synthèse générale et concise.
+- Si les extraits ne permettent pas de déterminer le sujet général du document,
+  dis clairement :
+  "Les extraits disponibles ne permettent pas de déterminer précisément
+  le sujet général du document."
+
+EXTRAITS DU DOCUMENT :
 
 {context}
 
